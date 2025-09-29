@@ -1,3 +1,6 @@
+// =====================
+// Quiz Questions
+// =====================
 const questions = [
   {
     question: "What is the capital of France?",
@@ -16,7 +19,7 @@ const questions = [
   },
   {
     question: "Which is the largest planet in our solar system?",
-    choices: ["Earth", "Jupiter", "Mars"],
+    choices: ["Earth", "Jupiter", "Mars", "Saturn"], // ensure 4 options for consistency
     answer: "Jupiter",
   },
   {
@@ -26,12 +29,16 @@ const questions = [
   },
 ];
 
-// Core elements
+// =====================
+// Core DOM Elements
+// =====================
 const questionsElement = document.getElementById("questions");
 const submitBtn = document.getElementById("submit");
 const scoreElement = document.getElementById("score");
 
-// Load saved progress from sessionStorage
+// =====================
+// Storage Handling
+// =====================
 let savedProgress = JSON.parse(sessionStorage.getItem("progress")) || {};
 let finalScore = localStorage.getItem("score");
 
@@ -40,7 +47,9 @@ if (finalScore !== null) {
   scoreElement.textContent = `Your score is ${finalScore} out of ${questions.length}.`;
 }
 
-// Render quiz questions
+// =====================
+// Render Quiz Questions
+// =====================
 function renderQuestions() {
   questionsElement.innerHTML = "";
   for (let i = 0; i < questions.length; i++) {
@@ -60,13 +69,23 @@ function renderQuestions() {
       choiceElement.name = `question-${i}`;
       choiceElement.value = choice;
 
+      // Restore from sessionStorage
       if (savedProgress[i] === choice) {
         choiceElement.checked = true;
+        choiceElement.setAttribute("checked", "true"); // ✅ for Cypress
       }
 
+      // Save on selection
       choiceElement.addEventListener("change", () => {
         savedProgress[i] = choice;
         sessionStorage.setItem("progress", JSON.stringify(savedProgress));
+
+        // Reset other options' checked attribute
+        document
+          .querySelectorAll(`input[name="question-${i}"]`)
+          .forEach(input => input.removeAttribute("checked"));
+
+        choiceElement.setAttribute("checked", "true"); // ✅ for Cypress
       });
 
       label.appendChild(choiceElement);
@@ -80,7 +99,9 @@ function renderQuestions() {
 }
 renderQuestions();
 
-// Handle submit
+// =====================
+// Handle Submit
+// =====================
 submitBtn.addEventListener("click", () => {
   let score = 0;
   for (let i = 0; i < questions.length; i++) {
